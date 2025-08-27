@@ -3,6 +3,8 @@
 # Inheritance, Polymorphism, and Optional Encapsulation
 # ==========================================================
 
+# ---------- 1️⃣ DEVICE / SMARTPHONE EXAMPLE ----------
+
 class Device:
     """Parent class representing a generic device."""
 
@@ -28,7 +30,7 @@ class Smartphone(Device):
         super().__init__(brand, model)
         self.storage_gb = storage_gb
         self.battery_level = 100
-        self._pin_code = None  # Encapsulated (private) attribute
+        self._pin_code = None  # Encapsulated (private-like) attribute
 
     # ---------- Polymorphism ----------
     def power_on(self):
@@ -66,44 +68,89 @@ class Smartphone(Device):
             print("Incorrect PIN. Access denied.")
 
 
+# ---------- 2️⃣ VEHICLE / CAR VARIANTS EXAMPLE ----------
+
+# Parent class for all vehicles
+class Vehicle:
+    """Represents a generic vehicle."""
+
+    def __init__(self, name):
+        self.name = name
+
+    def move(self):
+        """Generic movement method."""
+        print("The vehicle is moving.")
+
+
+# Child class: Car
+class Car(Vehicle):
+    def move(self):
+        """Override move() for a standard car."""
+        print(f"{self.name} drives on the road.")
+
+
+# Child class: ElectricCar
+class ElectricCar(Vehicle):
+    def move(self):
+        """Override move() for an electric car."""
+        print(f"{self.name} glides silently.")
+
+
+# Child class: SportsCar
+class SportsCar(Vehicle):
+    def move(self):
+        """Override move() for a sports car."""
+        print(f"{self.name} zooms at high speed!")
+
+
 # ==========================================================
 # Testing / Demonstration
 # ==========================================================
-
 if __name__ == "__main__":
 
+    print("=== SMARTPHONE DEMO ===")
     # Create two Smartphone objects with different attributes
     phone1 = Smartphone("Apple", "iPhone 15", 256)
     phone2 = Smartphone("Samsung", "Galaxy S24", 512)
 
     # Demonstrate polymorphism
-    phone1.power_on()  # Calls overridden Smartphone method
+    phone1.power_on()  # Overridden method
     phone2.power_on()
 
-    print("\n--- Demonstrating Features for Phone 1 ---")
+    print("\n--- Features for Phone 1 ---")
     phone1.make_call("+254700123456")
     phone1.charge(15)
     phone1.install_app("Slack")
-
-    # Optional PIN feature
     phone1.set_pin_code("1234")
     phone1.unlock("1111")  # Wrong PIN
     phone1.unlock("1234")  # Correct PIN
 
-    print("\n--- Demonstrating Features for Phone 2 ---")
+    print("\n--- Features for Phone 2 ---")
     phone2.make_call("+254711987654")
     phone2.charge(5)
     phone2.install_app("Zoom")
     phone2.unlock("0000")  # No PIN set
 
+    print("\n=== VEHICLE DEMO ===")
+    # List of different vehicle types (demonstrates polymorphism)
+    vehicles = [
+        Car("Toyota Corolla"),
+        ElectricCar("Tesla Model 3"),
+        SportsCar("Ferrari F8")
+    ]
+
+    for v in vehicles:
+        v.move()
+
 
 """
 ================= Sample Output =================
 
+=== SMARTPHONE DEMO ===
 📱 iPhone 15 is booting up... Welcome!
 📱 Galaxy S24 is booting up... Welcome!
 
---- Demonstrating Features for Phone 1 ---
+--- Features for Phone 1 ---
 Calling +254700123456...
 Battery charged from 100% to 100%.
 Installing 'Slack'... Done!
@@ -111,10 +158,15 @@ PIN code has been set.
 Incorrect PIN. Access denied.
 PIN correct. Device unlocked!
 
---- Demonstrating Features for Phone 2 ---
+--- Features for Phone 2 ---
 Calling +254711987654...
 Battery charged from 100% to 100%.
 Installing 'Zoom'... Done!
 No PIN set. Device unlocked.
+
+=== VEHICLE DEMO ===
+Toyota Corolla drives on the road.
+Tesla Model 3 glides silently.
+Ferrari F8 zooms at high speed!
 =================================================
 """
