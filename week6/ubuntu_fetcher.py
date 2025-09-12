@@ -1,73 +1,108 @@
-#!/usr/bin/env python3
-"""
-Ubuntu-Inspired Image Fetcher - Assignment Solution
-"I am because we are" - Simple, practical, community-focused
-"""
-
-import os
 import requests
+import os
+import hashlib
 from urllib.parse import urlparse
-import uuid
+from requests.utils import unquote_header_value
 
-def fetch_image():
-    """
-    Simple Ubuntu-inspired image fetcher following assignment requirements
-    """
+# ========== Ubuntu Principles ==========
 
-    # Ubuntu principle: Community - Prompt user for URL
-    url = input("Enter the URL of the image to fetch: ").strip()
+def hash_image_bytes(content):
+    """Return SHA-256 hex digest of image content for duplication check."""
+    return hashlib.sha256(content).hexdigest()
 
-    try:
-        # Ubuntu principle: Community - Connect to the web
-        print("Connecting to fetch the shared resource...")
-        response = requests.get(url, timeout=30)
+def get_filename_from_headers(headers, url):
+    """Extract filename from Content-Disposition, or URL, otherwise generate one."""
+    # Try Content-Disposition header
+    cd = headers.get("Content-Disposition")
+    filename = None
+    if cd and "filename=" in cd:
+        filename = unquote_header_value(cd.split("filename=")[-1].split(";")[0].strip(" '\""))
+    # Fallback: filename from URL path
+    if not filename:
+        filename = os.path.basename(urlparse(url).path)
+    # Final fallback
+    if not filename or '.' not in filename:
+        filename = "image_" + hashlib.md5(url.encode('utf-8')).hexdigest()[:8] + ".jpg"
+    return filename
 
-        # Ubuntu principle: Respect - Check for HTTP errors
-        response.raise_for_status()
+def is_downloadable(headers):
+    """Precaution: Allow only actual image/content downloads within size limits."""
+    content_type = headers.get("Content-Type", "")
+    if not content_type.startswith("image/"):
+        return False, "Not an image (Content-Type: {})".format(content_type)
+    content_length = headers.get("Content-Length")
+    if content_length and int(content_length) > 10_000_000:  # Example: 10MB limit
+        return False, "Image too large (>{} MB)".format(10)
+    return True, ""
 
-        # Ubuntu principle: Sharing - Create directory for organization
-        directory = "Fetched_Images"
-        os.makedirs(directory, exist_ok=True)
+def sanitize_filename(filename):
+    """Removes risky/special characters (simple whitelist approach)."""
+    return "".join(c for c in filename if c.isalnum() or c in (' ', '.', '_', '-')).rstrip()
 
-        # Ubuntu principle: Practicality - Generate appropriate filename
-        parsed_url = urlparse(url)
-        filename = os.path.basename(parsed_url.path)
+def main():
+    print("🌅 Ubuntu Image Fetcher: Community edition\nConnect and share mindfully with the world.\n")
+    url_input = input("Enter image URLs separated by commas or newlines:\n")
+    url_list = [u.strip() for u in url_input.replace('\n', ',').split(',') if u.strip()]
 
-        # If no filename in URL, generate one
-        if not filename or '.' not in filename:
-            # Generate unique filename
-            unique_id = str(uuid.uuid4())[:8]
-            filename = f"image_{unique_id}.jpg"
+    os.makedirs("Fetched_Images", exist_ok=True)
 
-        # Clean filename of query parameters
-        filename = filename.split('?')[0]
-        filepath = os.path.join(directory, filename)
+    # Duplicate prevention: Remember content hashes during this run & record for next
+    seen_hashes = set()
+    hash_file = "Fetched_Images/hashes.txt"
+    if os.path.exists(hash_file):
+        with open(hash_file, "r") as hf:
+            for line in hf:
+                seen_hashes.add(line.strip())
 
-        # Ubuntu principle: Sharing - Save in binary mode for later appreciation
-        with open(filepath, 'wb') as file:
-            file.write(response.content)
+    for url in url_list:
+        try:
+            # HEAD request for headers/precautions
+            head = requests.head(url, timeout=10, allow_redirects=True)
+            downloadable, reason = is_downloadable(head.headers)
+            if not downloadable:
+                print(f"✗ Skipped: {url} — {reason}")
+                continue
 
-        print(f"✅ Success! Image saved as: {filepath}")
-        print(f"📁 Organized in: {directory}/")
-        print("🎉 Ready for community sharing and appreciation!")
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            img_bytes = response.content
 
-    except requests.exceptions.RequestException as e:
-        # Ubuntu principle: Respect - Handle errors gracefully
-        print(f"🌐 Connection challenge: {e}")
-        print("Ubuntu wisdom: 'Not all connections succeed, but we try with respect'")
+            image_hash = hash_image_bytes(img_bytes)
+            if image_hash in seen_hashes:
+                print(f"✗ Skipped duplicate: {url}")
+                continue
 
-    except IOError as e:
-        # Ubuntu principle: Respect - Handle file errors gracefully  
-        print(f"💾 File system challenge: {e}")
-        print("Ubuntu wisdom: 'Share what you can, when you can'")
+            seen_hashes.add(image_hash)
 
-    except Exception as e:
-        # Ubuntu principle: Respect - Handle unexpected errors gracefully
-        print(f"❓ Unexpected challenge: {e}")
-        print("Ubuntu wisdom: 'Every problem teaches us something new'")
+            # Get a safe filename
+            filename = get_filename_from_headers(response.headers, url)
+            filename = sanitize_filename(filename)
+            filepath = os.path.join("Fetched_Images", filename)
+
+            # Prevent filename collisions
+            base, ext = os.path.splitext(filename)
+            idx = 1
+            while os.path.exists(filepath):
+                filepath = os.path.join("Fetched_Images", f"{base}_{idx}{ext}")
+                idx += 1
+
+            with open(filepath, 'wb') as f:
+                f.write(img_bytes)
+
+            print(f"✓ Successfully fetched: {filename}")
+            print(f"✓ Image saved to {filepath}")
+
+        except requests.exceptions.RequestException as e:
+            print(f"✗ Connection or HTTP error for {url}: {e}")
+        except Exception as e:
+            print(f"✗ Unexpected error for {url}: {e}")
+
+    # Save updated hashes for future runs
+    with open(hash_file, "w") as hf:
+        for h in seen_hashes:
+            hf.write(h + "\n")
+
+    print("\nConnection strengthened. Community enriched.")
 
 if __name__ == "__main__":
-    print("🌅 Ubuntu Image Fetcher - Assignment Solution")
-    print("'I am because we are' - Connecting communities through shared resources")
-    print("=" * 50)
-    fetch_image()
+    main()

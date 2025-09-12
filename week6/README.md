@@ -1,64 +1,83 @@
-# simple_ubuntu_fetcher.py README
+# Ubuntu-Inspired Image Fetcher
+
+A respectful, community-focused Python tool for collecting, organizing, and safeguarding images from the web.
+
+
 
 ## Overview
 
-**simple_ubuntu_fetcher.py** is a Python script inspired by the Ubuntu philosophy of "I am because we are." It allows users to respectfully fetch and organize images from the global internet community, handling errors gracefully and supporting collective sharing and appreciation of digital resources.[1][3]
+**Ubuntu-Inspired Image Fetcher** helps you download multiple images from internet sources, organizing them in a mindful and safe way – embodying the Ubuntu philosophy: "I am because we are". It protects your community and system by validating every download, checking for duplicates, and keeping everything organized for easy sharing.
 
 ## Features
 
-- Prompts for a URL containing an image.
-- Connects to the internet to download shared resources.
-- Creates a directory called `Fetched_Images` if it doesn't exist.
-- Extracts a filename from the image URL or generates a unique name.
-- Saves the image in binary mode.
-- Handles HTTP errors and exceptions gracefully, providing user-friendly messages.
+- Download multiple images by inputting a comma- or newline-separated list of URLs.
+- Automatically saves all images to a `Fetched_Images/` directory.
+- Checks content type and file size before saving – only safe, valid images are kept.
+- Skips duplicate images based on robust SHA-256 content hashing.
+- Extracts a filename from HTTP headers or URL; filenames are sanitized and de-duplicated.
+- Friendly, Ubuntu-inspired messages and clear reporting for each URL processed.
+- All downloads tracked for future duplicate prevention.
 
-## Ubuntu Principles
+## Requirements
 
-- **Community**: Connects to the wider web community to fetch shared resources.
-- **Respect**: Handles errors gracefully, respecting connectivity and permissions.
-- **Sharing**: Organizes downloaded images for future sharing.
-- **Practicality**: Simple, effective solution to a real-world need.
-
-## Installation
-
-1. **Clone or Download the Script**
-   - Place `simple_ubuntu_fetcher.py` in your desired directory.
-
-2. **Install the Required Python Library**
-   ```
-   pip install requests
-   ```
+- Python 3.6 or higher
+- `requests` library (install with `pip install requests`)
 
 ## Usage
 
-1. Run the script:
-   ```
-   python simple_ubuntu_fetcher.py
-   ```
-2. Enter the URL of an image when prompted.
+1. **Save the script** to your local folder.
 
-3. The image will be saved to the `Fetched_Images` directory, using either its original filename or a generated one.
+2. **Install dependencies:**
+   ```sh
+   pip install requests
+   ```
+
+3. **Run the script:**
+   ```sh
+   python ubuntu_image_fetcher.py
+   ```
+
+4. **Paste or type URLs** (comma- or newline-separated) when prompted.
+
+5. **Find your images** in the `Fetched_Images/` directory, free from duplicates and organized for sharing.
 
 ## Example
 
 ```
-🌅 Ubuntu Image Fetcher - Assignment Solution
-'I am because we are' - Connecting communities through shared resources
-==================================================
-Enter the URL of the image to fetch: https://www.example.com/image.jpg
-✅ Success! Image saved as: Fetched_Images/image.jpg
+🌅 Ubuntu Image Fetcher: Community edition
+Connect and share mindfully with the world.
+
+Enter image URLs separated by commas or newlines:
+https://example.com/image1.jpg, https://example.com/image2.png
+
+✓ Successfully fetched: image1.jpg
+✓ Image saved to Fetched_Images/image1.jpg
+✗ Skipped duplicate: https://example.com/image1.jpg
+✗ Skipped: https://example.com/not-an-image — Not an image (Content-Type: text/html)
 ```
 
-## Error Handling
+## How It Works
 
-- Connection problems, timeouts, HTTP errors, file system errors, and unexpected issues are all managed respectfully with informative messages for guidance and resilience.
+- **Community:** Connects ethically to the global web, downloads with user-provided URLs, and provides Ubuntu-style support messages.
+- **Respect:** Only saves valid image types, checks for file size limits, and handles all errors gracefully.
+- **Sharing:** Organizes and records every download with care, using safe, unique filenames.
+- **Safety:** Skips duplicates based on the actual content of each image, not just filenames.
+
+## Notes on Precautions
+
+- Accepts only URLs with image content types.
+- Limits download size to prevent misuse or accidental large downloads.
+- Sanitizes all filenames and prevents overwriting existing files.
+- Stores image hashes in `Fetched_Images/hashes.txt` to prevent future duplicates.
 
 ## License
 
-This project is open-source and free to use for community and educational purposes.
+MIT License. Free to use, adapt, and share for educational and community projects.
 
 ## Author
 
-Created as a demonstration of Ubuntu-inspired coding for resource sharing and respectful programming practice.
+Ubuntu-inspired Python project for learning, sharing, and respectful digital community building.
 
+***
+
+For any improvements, suggestions, or Ubuntu wisdom, contributions are welcome!
