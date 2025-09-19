@@ -99,15 +99,7 @@ Frameworks_Assignment/
 ├── requirements.txt          # Python dependencies
 ├── README.md                 # This file
 │
-├── images/                   # Generated visualizations
-│   ├── publications_by_year.png
-│   ├── top_journals.png
-│   ├── word_frequency.png
-│   ├── wordcloud.png
-│   ├── source_distribution.png
-│   └── abstract_length_distribution.png
-│
-└── data/                     # Additional data files (if any)
+├── visualizations/            # Generated visualizations
 ```
 
 ## 📈 Key Findings
@@ -164,7 +156,7 @@ print(top_journals_2020)
 
 ## 📊 Sample Screenshots
 
-*Add screenshots of your Streamlit app here*
+*check visualization folder
 
 ## 🤝 Contributing
 
